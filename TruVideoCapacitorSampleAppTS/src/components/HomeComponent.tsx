@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
 import './../css/App.css';
 import './../css/home.css';
+
 import { TruvideoSdkCamera, LensFacing, FlashMode, Orientation, Mode } from 'truvideo-capacitor-camera-sdk';
 import { TruVideoSdkCore } from 'truvideo-capacitor-core-sdk';
 import { TruvideoSdkMedia } from 'truvideo-capacitor-media-sdk';
+
 import { useHistory } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useEffect, useState } from 'react';
 import type { PluginListenerHandle } from '@capacitor/core';
 
 
@@ -119,7 +121,7 @@ function HomeComponent() {
     backResolutions: [],
     backResolution: null,
     mode: Mode.VideoAndPicture || "videoAndPicture"
-    
+
   };
 
   // Formatted options for consistency
@@ -167,7 +169,7 @@ function HomeComponent() {
             tag: JSON.stringify({ key: "value", color: "red", orderNumber: "123" }),
             metaData: JSON.stringify({ key: "value", key1: 1, key2: [4, 5, 6] })
           };
-          
+
           await TruvideoSdkMedia.uploadMedia(payload);
 
           const url = item.filePath;

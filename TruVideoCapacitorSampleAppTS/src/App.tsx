@@ -1,10 +1,12 @@
-import HomeComponent from './components/HomeComponent';
 import { IonRouterOutlet } from '@ionic/react';
 import { Route } from 'react-router-dom';
+
+import HomeComponent from './components/HomeComponent';
 import VideoComponent from './components/VideoComponent';
-import { ToastContainer } from 'react-toastify';
 import MediaComponent from './components/MediaComponent';
 import ImageComponent from './components/ImageComponent';
+
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (

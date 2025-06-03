@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import './../css/App.css';
+
 import { TruvideoSdkCamera } from 'truvideo-capacitor-camera-sdk';
 import { TruvideoSdkVideo } from 'truvideo-capacitor-video-sdk';
-import { toast } from 'react-toastify';
 
 function VideoComponent() {
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
   const [selectedVideos, setSelectedVideos] = useState<string[]>([]);
   const multipleSelected = selectedVideos.length >= 2;
   const singleSelected = selectedVideos.length >= 1;
-
 
   useEffect(() => {
     const subscription = TruvideoSdkCamera.addListener("cameraEvent", (event) => {
