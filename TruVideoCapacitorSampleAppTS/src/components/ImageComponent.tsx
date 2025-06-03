@@ -54,7 +54,12 @@ function ImageComponent() {
     );
   };
   return (
-    <div style={styles.container}>
+    <div style={{
+      ...styles.container,
+      backgroundColor: '#ffffff',
+      color: '#000000',
+      minHeight: '100vh',
+    }}>
       <div style={{ marginBottom: 30 }} />
 
       {/* Back Button */}

@@ -27,9 +27,9 @@
     "react-toastify": "^11.0.5",
     "truvideo-capacitor-camera-sdk": "github:Truvideo/TruVideoCapacitorCameraSdk",
     "truvideo-capacitor-core-sdk": "github:Truvideo/TruVideoCapacitorCoreSdk",
-    "truvideo-capacitor-image-sdk": "github:Truvideo/TruVideoCapacitorImageSdk#dev-himanshu",
+    "truvideo-capacitor-image-sdk": "github:Truvideo/TruVideoCapacitorImageSdk",
     "truvideo-capacitor-media-sdk": "github:Truvideo/TruVideoCapacitorMediaSdk",
-    "truvideo-capacitor-video-sdk": "github:Truvideo/TruVideoCapacitorVideoSdk#dev-himanshu"
+    "truvideo-capacitor-video-sdk": "github:Truvideo/TruVideoCapacitorVideoSdk"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.2.0",

@@ -206,7 +206,12 @@ function VideoComponent() {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={{
+      ...styles.container,
+      backgroundColor: '#ffffff',
+      color: '#000000',
+      minHeight: '100vh',
+    }}>
       <div style={{ marginBottom: 30 }} />
 
       {/* Back Button */}
@@ -236,7 +241,7 @@ function VideoComponent() {
                 type="checkbox"
                 checked={selectedVideos.includes(url)}
                 onChange={() => handleCheckboxChange(url)}
-                style={styles.checkbox}
+                style={styles.checkbox as any}
               />
               <span style={styles.text as any}>{url.split('/').pop()}</span>
             </div>
