@@ -1,0 +1,49 @@
+{
+  "name": "truvideocapacitorsampleappts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.2.0",
+    "@capacitor/app": "7.0.1",
+    "@capacitor/core": "^7.0.1",
+    "@capacitor/haptics": "7.0.1",
+    "@capacitor/ios": "^7.2.0",
+    "@capacitor/keyboard": "7.0.1",
+    "@capacitor/status-bar": "7.0.1",
+    "@ionic/react": "^8.5.8",
+    "@ionic/react-router": "^8.5.8",
+    "cra-template": "1.3.0",
+    "ionicons": "8.0.9",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^5.3.4",
+    "react-toastify": "^11.0.5",
+    "truvideo-capacitor-camera-sdk": "github:Truvideo/TruVideoCapacitorCameraSdk",
+    "truvideo-capacitor-core-sdk": "github:Truvideo/TruVideoCapacitorCoreSdk",
+    "truvideo-capacitor-image-sdk": "github:Truvideo/TruVideoCapacitorImageSdk#dev-himanshu",
+    "truvideo-capacitor-media-sdk": "github:Truvideo/TruVideoCapacitorMediaSdk",
+    "truvideo-capacitor-video-sdk": "github:Truvideo/TruVideoCapacitorVideoSdk#dev-himanshu"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.2.0",
+    "@eslint/js": "^9.25.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5"
+  }
+}
