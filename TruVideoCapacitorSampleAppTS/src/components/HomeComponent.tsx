@@ -80,8 +80,8 @@ function HomeComponent() {
       const payload = await TruVideoSdkCore.generatePayload();
       const pay = String(payload.generatePayload);
 
-      const apiKey = "EPhPPsbv7e";
-      const secretKey = "9lHCnkfeLl";
+      const apiKey = "Enter API Key";
+      const secretKey = "Enter Secret key";
 
       const signature = await TruVideoSdkCore.toSha256String({
         secretKey: secretKey,
