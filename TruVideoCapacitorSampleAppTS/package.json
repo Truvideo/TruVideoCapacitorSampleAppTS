@@ -28,7 +28,7 @@
     "truvideo-capacitor-camera-sdk": "github:Truvideo/TruVideoCapacitorCameraSdk",
     "truvideo-capacitor-core-sdk": "github:Truvideo/TruVideoCapacitorCoreSdk",
     "truvideo-capacitor-image-sdk": "github:Truvideo/TruVideoCapacitorImageSdk",
-    "truvideo-capacitor-media-sdk": "github:Truvideo/TruVideoCapacitorMediaSdk",
+    "truvideo-capacitor-media-sdk": "github:Truvideo/TruVideoCapacitorMediaSdk#dev-himanshu",
     "truvideo-capacitor-video-sdk": "github:Truvideo/TruVideoCapacitorVideoSdk"
   },
   "devDependencies": {
