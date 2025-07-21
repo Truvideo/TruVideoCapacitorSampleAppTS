@@ -1,13 +1,12 @@
 import './../css/App.css';
 import './../css/home.css';
 
-import { TruvideoSdkCamera, LensFacing, FlashMode, Orientation, Mode } from 'truvideo-capacitor-camera-sdk';
+import { LensFacing, FlashMode, Orientation, CameraMode, initCameraScreen, type CameraConfiguration } from 'truvideo-capacitor-camera-sdk';
 import { TruVideoSdkCore } from 'truvideo-capacitor-core-sdk';
-import { TruvideoSdkMedia, MediaBuilder, type UploadCompleteEventData, type UploadErrorEvent, type UploadProgressEvent } from 'truvideo-capacitor-media-sdk';
+import { MediaBuilder, type UploadCompleteEventData, type UploadErrorEvent, type UploadProgressEvent } from 'truvideo-capacitor-media-sdk';
 import { useHistory } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
-import type { PluginListenerHandle } from '@capacitor/core';
 
 
 type MediaItem = {
@@ -35,42 +34,6 @@ function HomeComponent() {
 
   const history = useHistory();
 
-  // Setup event listeners on mount
-  useEffect(() => {
-    let cameraListener: PluginListenerHandle;
-    let onUploadProgress: PluginListenerHandle;
-    let onUploadError: PluginListenerHandle;
-    let onUploadComplete: PluginListenerHandle;
-
-
-    const setupListeners = async () => {
-      cameraListener = TruvideoSdkCamera.addListener("cameraEvent", (event) => {
-        console.log("Received Camera Event:", event.cameraEvent);
-      });
-      onUploadProgress = await TruvideoSdkMedia.addListener('onProgress', (event) => {
-        console.log(`Progress: ${event.progress} for ${event.id}`);
-      });
-
-      onUploadError = await TruvideoSdkMedia.addListener('onError', (event) => {
-        console.error(`Error on ${event.id}`, event.error);
-      });
-
-      onUploadComplete = await TruvideoSdkMedia.addListener('onComplete', (event) => {
-        console.log(`Upload complete for ${event.id}`);
-      });
-    };
-
-    setupListeners();
-
-    // Cleanup listeners on   unmount
-    return () => {
-      console.log("🧹 Removing upload event listeners...");
-      cameraListener.remove();
-      onUploadProgress.remove();
-      onUploadError.remove();
-      onUploadComplete.remove();
-    };
-  }, []);
 
 
   // Authenticate user and restore previously uploaded media
@@ -94,8 +57,8 @@ function HomeComponent() {
       const payload = await TruVideoSdkCore.generatePayload();
       const pay = String(payload.generatePayload);
 
-      const apiKey = "EPhPPsbv7e";
-      const secretKey = "9lHCnkfeLl";
+      const apiKey = "";
+      const secretKey = "";
 
       const signature = await TruVideoSdkCore.toSha256String({
         secretKey: secretKey,
@@ -125,35 +88,23 @@ function HomeComponent() {
   }
 
   // Camera options
-  const secretKey = {
+  const secretKey: CameraConfiguration = {
     lensFacing: LensFacing?.Front || "front",
     flashMode: FlashMode?.Off || "off",
     orientation: Orientation?.Portrait || "portrait",
     outputPath: "",
-    frontResolutions: [],
+    frontResolutions: null,
     frontResolution: null,
-    backResolutions: [],
+    backResolutions: null,
     backResolution: null,
-    mode: Mode.VideoAndPicture || "videoAndPicture"
-
+    mode: CameraMode.videoAndImage()
   };
 
-  // Formatted options for consistency
-  const formattedSecretKey = {
-    ...secretKey,
-    lensFacing: String(secretKey.lensFacing),
-    flashMode: String(secretKey.flashMode),
-    orientation: String(secretKey.orientation),
-    mode: String(secretKey.mode)
-  };
   async function openCamera() {
     try {
-      const jsonString = JSON.stringify(formattedSecretKey);
       let mediaItems = [];
-
-      const response = await TruvideoSdkCamera.initCameraScreen({ configuration: jsonString });
-      console.log("response", response);
-      const resultData = response.result;
+      const response = await initCameraScreen(secretKey);
+      const resultData = response.value;
       console.log("resultData", resultData);
       if (typeof resultData === "string") {
         try {
@@ -184,8 +135,6 @@ function HomeComponent() {
 
     for (const item of mediaItems) {
       try {
-        //setTag({ key: 'value', color: 'red', orderNumber: 123 });
-        //setMetaData({ key: 'value', key1: 1, key2: [4, 5, 6] });
         const result = new MediaBuilder(item.filePath)
         // setTag
         result.setTag("key", "value");
@@ -204,7 +153,7 @@ function HomeComponent() {
           onProgress: (event: UploadProgressEvent) => {
             console.log(`ID: ${event.id}, Progress: ${event.progress}%`)
           },
-          onComplete: (event: UploadCompleteEventData) => { // Use 'any' or proper type for parsed data
+          onComplete: (event: UploadCompleteEventData) => {
             console.log(`ID: ${event.id}, Type: ${event.fileType}`)
           },
           onError: (event: UploadErrorEvent) => {
@@ -212,8 +161,7 @@ function HomeComponent() {
           },
         };
 
-        //const result = await uploadMedia(item.filePath, JSON.stringify(tag), JSON.stringify(metaData));
-        var res = await request.upload(uploadCallbacks)
+        await request.upload(uploadCallbacks)
 
         const url = item.filePath;
         const type = item.type;
@@ -226,11 +174,7 @@ function HomeComponent() {
           }
         }
 
-
-
-
-        console.log(' successful: set upload');
-        console.log('Upload successful:', res);
+        console.log('Upload successful:');
       } catch (error) {
         console.error('Upload error:', error);
       }
