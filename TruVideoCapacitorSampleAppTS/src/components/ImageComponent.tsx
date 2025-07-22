@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-
-import { TruvideoSdkCamera } from 'truvideo-capacitor-camera-sdk';
 import { TruvideoSdkImage } from 'truvideo-capacitor-image-sdk'
-import { TruvideoSdkVideo } from 'truvideo-capacitor-video-sdk';
+import { getResultPath } from 'truvideo-capacitor-video-sdk';
 
 function ImageComponent() {
   
@@ -10,14 +8,14 @@ function ImageComponent() {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   console.log("uploadedImages", uploadedImages);
 
-  useEffect(() => {
-    const subscription = TruvideoSdkCamera.addListener("cameraEvent", (event) => {
-      console.log("Camera Event:", event.cameraEvent);
-    });
-    return () => {
-      subscription?.remove?.();
-    };
-  }, []);
+  // useEffect(() => {
+  //   const subscription = TruvideoSdkCamera.addListener("cameraEvent", (event) => {
+  //     console.log("Camera Event:", event.cameraEvent);
+  //   });
+  //   return () => {
+  //     subscription?.remove?.();
+  //   };
+  // }, []);
 
   useEffect(() => {
     const savedImages = JSON.parse(sessionStorage.getItem('uploadedImages') || '[]');
@@ -30,11 +28,11 @@ function ImageComponent() {
     if (!selectedImages[0]) return;
 
     try {
-      const resultPathResponse = await TruvideoSdkVideo.getResultPath({ path: `${Date.now()}-thumbnail` });
+      const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail`);
 
       const payload = {
         inputPath: selectedImages[0],
-        outputPath: resultPathResponse.resultPath,
+        outputPath: resultPathResponse.result
       };
 
       const { result } = await TruvideoSdkImage.editImage(payload);
