@@ -26,8 +26,8 @@
     "react-router-dom": "^5.3.4",
     "react-toastify": "^11.0.5",
     "truvideo-capacitor-camera-sdk": "github:Truvideo/TruVideoCapacitorCameraSdk#himanshu-dev",
-    "truvideo-capacitor-core-sdk": "github:Truvideo/TruVideoCapacitorCoreSdk",
-    "truvideo-capacitor-image-sdk": "github:Truvideo/TruVideoCapacitorImageSdk",
+    "truvideo-capacitor-core-sdk": "github:Truvideo/TruVideoCapacitorCoreSdk#dev-himanshu",
+    "truvideo-capacitor-image-sdk": "github:Truvideo/TruVideoCapacitorImageSdk#dev-himanshu",
     "truvideo-capacitor-media-sdk": "github:Truvideo/TruVideoCapacitorMediaSdk#dev-himanshu",
     "truvideo-capacitor-video-sdk": "github:Truvideo/TruVideoCapacitorVideoSdk#version-76"
   },

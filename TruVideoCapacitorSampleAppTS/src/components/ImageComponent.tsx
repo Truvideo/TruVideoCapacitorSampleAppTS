@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { TruvideoSdkImage } from 'truvideo-capacitor-image-sdk'
 import { getResultPath } from 'truvideo-capacitor-video-sdk';
+import { toast } from 'react-toastify';
 
 function ImageComponent() {
-  
+
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   console.log("uploadedImages", uploadedImages);
@@ -28,7 +29,7 @@ function ImageComponent() {
     if (!selectedImages[0]) return;
 
     try {
-      const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail`);
+      const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail.png`);
 
       const payload = {
         inputPath: selectedImages[0],
@@ -36,7 +37,8 @@ function ImageComponent() {
       };
 
       const { result } = await TruvideoSdkImage.editImage(payload);
-      console.log("Edit Image Response:", result);
+      console.log("Edited Image Response:", result);
+      if (result) toast.success("Process successful!");
     } catch (error) {
       console.error("❌ Failed to Edit Image:", error);
     } finally {

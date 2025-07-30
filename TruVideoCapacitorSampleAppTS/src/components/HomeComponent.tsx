@@ -88,6 +88,7 @@ function HomeComponent() {
   }
 
   // Camera options
+
   const secretKey: CameraConfiguration = {
     lensFacing: LensFacing?.Front || "front",
     flashMode: FlashMode?.Off || "off",
@@ -102,70 +103,82 @@ function HomeComponent() {
 
   async function openCamera() {
     try {
-      let mediaItems = [];
+      console.log("[openCamera] Triggered");
+
       const response = await initCameraScreen(secretKey);
       const resultData = response.value;
-      console.log("resultData", resultData);
+
+      let mediaItems: any[] = [];
+
       if (typeof resultData === "string") {
         try {
           const parsed = JSON.parse(resultData);
           mediaItems = Array.isArray(parsed) ? parsed : [];
         } catch (error) {
-          console.error("Failed to parse camera response:", error);
+          console.error("[openCamera] Failed to parse resultData:", error);
+          return;
         }
       }
 
       if (!Array.isArray(mediaItems)) {
-        console.error("Camera Upload Failed: mediaItems is not an array.");
+        console.error("[openCamera] Error: mediaItems is not an array:", mediaItems);
         return;
       }
 
       await uploadMediaItems(mediaItems);
-
-      console.log("Media Items ", mediaItems);
-      toast.success('Upload successful!');
+      toast.success("Upload successful!");
     } catch (error) {
-      console.error("Camera error:", error);
+      console.error("[openCamera] Caught error:", error);
     }
   }
 
+
   const uploadMediaItems = async (mediaItems: MediaItem[]) => {
-    const videoUrls = [];
-    const imageUrls = [];
+    console.log("[uploadMediaItems] Start | mediaItems:", mediaItems);
+
+    const videoUrls: string[] = [];
+    const imageUrls: string[] = [];
 
     for (const item of mediaItems) {
       try {
-        const result = new MediaBuilder(item.filePath)
-        // setTag
+        console.log(`[uploadMediaItems] Processing item:`, item);
+
+        const result = new MediaBuilder(item.filePath);
+        console.log(`[uploadMediaItems] Initialized MediaBuilder for ${item.filePath}`);
+
+        // Set tags
         result.setTag("key", "value");
         result.setTag("color", "red");
         result.setTag("orderNumber", "123");
-        // setMetaData
+
+        // Set metadata
         result.setMetaData("key", "value");
         result.setMetaData("key1", "1");
         result.setMetaData("key2", "[4,5,6]");
-        // buiild request
-        console.log(' successful: set data');
-        var request = await result.build()
-        console.log(' successful: set build');
-        // handle callbacks
+
+        // Build request
+        const request = await result.build();
+        console.log("[uploadMediaItems] Built upload request");
+
+        // Upload
         const uploadCallbacks = {
           onProgress: (event: UploadProgressEvent) => {
-            console.log(`ID: ${event.id}, Progress: ${event.progress}%`)
+            console.log(`[uploadMediaItems] Upload Progress | ID: ${event.id}, Progress: ${event.progress}%`);
           },
           onComplete: (event: UploadCompleteEventData) => {
-            console.log(`ID: ${event.id}, Type: ${event.fileType}`)
+            console.log(`[uploadMediaItems] Upload Complete | ID: ${event.id}, Type: ${event.fileType}`);
           },
           onError: (event: UploadErrorEvent) => {
-            console.log(`ID: ${event.id}, Error: ${event.error}`)
+            console.error(`[uploadMediaItems] Upload Error | ID: ${event.id}, Error: ${event.error}`);
           },
         };
 
-        await request.upload(uploadCallbacks)
+        await request.upload(uploadCallbacks);
+        console.log(`[uploadMediaItems] Upload finished for: ${item.filePath}`);
 
+        // Categorize
         const url = item.filePath;
         const type = item.type;
-
         if (url) {
           if (type === "VIDEO") {
             videoUrls.push(url);
@@ -174,26 +187,29 @@ function HomeComponent() {
           }
         }
 
-        console.log('Upload successful:');
       } catch (error) {
-        console.error('Upload error:', error);
+        console.error("[uploadMediaItems] Caught upload error:", error, "for item:", item);
       }
     }
 
+    console.log("[uploadMediaItems] Upload loop finished. Saving to session storage...");
+
+    // Save images
     const previousImages = JSON.parse(sessionStorage.getItem('uploadedImages') || '[]');
     const updatedImages = [...previousImages, ...imageUrls];
     setUploadedImages(updatedImages);
     sessionStorage.setItem('uploadedImages', JSON.stringify(updatedImages));
 
+    // Save videos
     const previousVideos = JSON.parse(sessionStorage.getItem('uploadedVideos') || '[]');
     const updatedVideos = [...previousVideos, ...videoUrls];
     setUploadedVideos(updatedVideos);
     sessionStorage.setItem('uploadedVideos', JSON.stringify(updatedVideos));
 
-    console.log("updatedVideos ", updatedVideos);
-    console.log("updatedImages", updatedImages);
-
+    console.log("[uploadMediaItems] Final updatedVideos:", updatedVideos);
+    console.log("[uploadMediaItems] Final updatedImages:", updatedImages);
   };
+
 
   const handleImageClick = () => {
     if (uploadedImages.length > 0) {

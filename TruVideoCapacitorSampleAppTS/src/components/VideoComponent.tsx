@@ -8,6 +8,8 @@ function VideoComponent() {
   const [selectedVideos, setSelectedVideos] = useState<string[]>([]);
   const multipleSelected = selectedVideos.length >= 2;
   const singleSelected = selectedVideos.length >= 1;
+  const [isBuildComplete, setIsBuildComplete] = useState(false);
+  const [currentBuilder, setCurrentBuilder] = useState<MergeBuilder | ConcatBuilder | EncodeBuilder | null>(null);
 
   // useEffect(() => {
   //   const subscription = TruvideoSdkCamera.addListener("cameraEvent", (event) => {
@@ -26,6 +28,7 @@ function VideoComponent() {
 
 
 
+
   const handleCheckboxChange = (url: string) => {
     setSelectedVideos((prevSelected) =>
       prevSelected.includes(url)
@@ -40,48 +43,27 @@ function VideoComponent() {
   const apiHandlers = {
     async mergeVideos() {
       if (!safeFirstSelected) {
-        console.warn("🚫 No videos selected for merging.");
+        console.warn("No videos selected for merging.");
         return;
       }
 
       try {
-        console.log("🔧 Starting mergeVideos process...");
-
-        // Step 1: Generate result path
-        const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail`);
-        console.log("📁 Result path generated:", resultPathResponse);
-
-        // Step 2: Log selected videos and result path
-        console.log("🎬 Selected videos for merging:", selectedVideos);
-        console.log("📍 Output path for merged video:", resultPathResponse.result);
-
-        // Step 3: Create MergeBuilder
+        const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail.mp4`);
         const builder = new MergeBuilder(JSON.stringify(selectedVideos), resultPathResponse.result)
           .setHeight(720)
           .setWidth(1280)
           .setFrameRate(FrameRate.thirtyFps);
 
-        console.log("🧱 MergeBuilder instance created with config:", {
-          height: 720,
-          width: 1280,
-          frameRate: FrameRate.thirtyFps,
-          outputPath: resultPathResponse.result,
-        });
-
-        // Step 4: Call build
         await builder.build();
 
-        // Step 5: Process the merged video
-        const processed = await builder.process();
-        console.log("✅ builder.process() result:", processed);
-
-        toast.success('✅ Merge successful!');
+        setCurrentBuilder(builder);
+        setIsBuildComplete(true);
+        toast.success('Merge Build successful!');
       } catch (error) {
-        console.error("❌ Failed to merge videos:", error);
-        toast.error('❌ Merge Failed!');
+        console.error("Failed to merge videos:", error);
+        toast.error('Merge Failed!');
       } finally {
         setSelectedVideos([]);
-        console.log("🧹 Cleaned up selected videos");
       }
     },
 
@@ -138,8 +120,9 @@ function VideoComponent() {
 
     async encodeVideo() {
       if (!safeFirstSelected) return;
-      const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail`);
+
       try {
+        const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail.mp4`);
 
         const builder = new EncodeBuilder(
           JSON.stringify(safeFirstSelected),
@@ -148,14 +131,15 @@ function VideoComponent() {
           .setHeight(720)
           .setWidth(1280)
           .setFrameRate(FrameRate.thirtyFps);
-        const buildResponse = await builder.build()
-        console.log('Build Success', buildResponse);
-        const processed = await builder.process();
 
-        console.log('Encode Result:', processed);
-        toast.success('Encode successful!');
+        await builder.build();
+
+        setCurrentBuilder(builder);
+        setIsBuildComplete(true);
+
+        toast.success('Encode Build successful!');
       } catch (error) {
-        console.error("❌ Failed to Encode Video:", error);
+        console.error('Failed to Encode Video:', error);
         toast.error('Encode Failed!');
       } finally {
         setSelectedVideos([]);
@@ -189,7 +173,7 @@ function VideoComponent() {
         const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail`);
         const { result } = await editVideo(safeFirstSelected, resultPathResponse.result);
         console.log("Edit Video Response:", result);
-        toast.success('Edit successful!');
+        if (result) toast.success('Edit successful!');
       } catch (error) {
         console.error("❌ Failed to Edit Video:", error);
         toast.error('Edit Failed!');
@@ -213,10 +197,10 @@ function VideoComponent() {
         await builder.build();
         console.log("Success Builder Function");
 
-        const processed = await builder.process();
+        setCurrentBuilder(builder);
+        setIsBuildComplete(true);
 
-        console.log("Concat Video Response:", processed);
-        toast.success('Concat successful!');
+        toast.success('Concat Build successful!');
       } catch (error) {
         console.error("❌ Failed to Concat Videos:", error);
         toast.error('Concat Failed!');
@@ -240,6 +224,36 @@ function VideoComponent() {
       }
     },
   };
+
+  const handleProcess = async () => {
+    if (!currentBuilder) return;
+    try {
+      const processed = await currentBuilder.process();
+      console.log("✅ Processed:", processed);
+      setCurrentBuilder(null);
+      setIsBuildComplete(false);
+
+      toast.success("Process successful!");
+    } catch (e) {
+      setCurrentBuilder(null);
+      setIsBuildComplete(false);
+      console.error("❌ Process failed", e);
+      toast.error("Process failed");
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!currentBuilder) return;
+    try {
+      const cancelled = await currentBuilder.cancel();
+      console.log("⛔ Cancelled:", cancelled);
+      toast.info("Cancelled!");
+    } catch (e) {
+      console.error("❌ Cancel failed", e);
+      toast.error("Cancel failed");
+    }
+  };
+
 
   return (
     <div style={{
@@ -325,6 +339,17 @@ function VideoComponent() {
                 action: apiHandlers.getVideoInfo,
                 enabled: singleSelected,
               },
+              {
+                label: 'Process Video',
+                action: handleProcess,
+                enabled: isBuildComplete,
+              },
+              {
+                label: 'Cancel Video',
+                action: handleCancel,
+                enabled: isBuildComplete,
+              },
+
             ].map((btn, idx) => (
               <button
                 key={idx}
@@ -398,36 +423,3 @@ const styles = {
 
 
 export default VideoComponent
-
-
-// function concatVideos(payload: { resultPath: string; videoUris: string; }): { result: any; } | PromiseLike<{ result: any; }> {
-//   throw new Error('Function not implemented.');
-// }
-// function generateThumbnail(payload: { resultPath: string; videoPath: string; config: string; position: number; width: number; height: number; precise: boolean; }): { result: any; } | PromiseLike<{ result: any; }> {
-//   throw new Error('Function not implemented.');
-// }
-
-
-// function encodeVideo(payload: { resultPath: string; videoUri: string; config: string; }): { result: any; } | PromiseLike<{ result: any; }> {
-//   throw new Error('Function not implemented.');
-// }
-
-
-// function cleanNoise(payload: { resultPath: string; videoPath: string; }): { result: any; } | PromiseLike<{ result: any; }> {
-//   throw new Error('Function not implemented.');
-// }
-
-
-// function editVideo(payload: { resultPath: string; videoPath: string; config: string; }): { result: any; } | PromiseLike<{ result: any; }> {
-//   throw new Error('Function not implemented.');
-// }
-
-
-// function concatVideos(payload: { resultPath: string; videoUris: string; }): { result: any; } | PromiseLike<{ result: any; }> {
-//   throw new Error('Function not implemented.');
-// }
-
-
-// function getVideoInfo(payload: { videoPath: string; }): { result: any; } | PromiseLike<{ result: any; }> {
-//   throw new Error('Function not implemented.');
-// }

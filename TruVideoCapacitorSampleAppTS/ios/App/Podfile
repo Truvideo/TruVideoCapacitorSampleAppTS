@@ -11,7 +11,15 @@ install! 'cocoapods', :disable_input_output_paths => true
 def capacitor_pods
   pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'
   pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/ios'
-
+  pod 'CapacitorApp', :path => '../../node_modules/@capacitor/app'
+  pod 'CapacitorHaptics', :path => '../../node_modules/@capacitor/haptics'
+  pod 'CapacitorKeyboard', :path => '../../node_modules/@capacitor/keyboard'
+  pod 'CapacitorStatusBar', :path => '../../node_modules/@capacitor/status-bar'
+  pod 'TruvideoCapacitorCameraSdk', :path => '../../node_modules/truvideo-capacitor-camera-sdk'
+  pod 'TruvideoCapacitorCoreSdk', :path => '../../node_modules/truvideo-capacitor-core-sdk'
+  pod 'TruvideoCapacitorImageSdk', :path => '../../node_modules/truvideo-capacitor-image-sdk'
+  pod 'TruvideoCapacitorMediaSdk', :path => '../../node_modules/truvideo-capacitor-media-sdk'
+  pod 'TruvideoCapacitorVideoSdk', :path => '../../node_modules/truvideo-capacitor-video-sdk'
 end
 
 target 'App' do
