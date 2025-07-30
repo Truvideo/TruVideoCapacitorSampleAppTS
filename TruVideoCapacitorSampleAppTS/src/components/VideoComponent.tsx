@@ -1,30 +1,31 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import './../css/App.css';
-
-import { TruvideoSdkCamera } from 'truvideo-capacitor-camera-sdk';
-import { TruvideoSdkVideo } from 'truvideo-capacitor-video-sdk';
+import { cleanNoise, compareVideos, ConcatBuilder, editVideo, EncodeBuilder, FrameRate, generateThumbnail, getResultPath, getVideoInfo, MergeBuilder } from 'truvideo-capacitor-video-sdk';
 
 function VideoComponent() {
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
   const [selectedVideos, setSelectedVideos] = useState<string[]>([]);
   const multipleSelected = selectedVideos.length >= 2;
   const singleSelected = selectedVideos.length >= 1;
+  const [isBuildComplete, setIsBuildComplete] = useState(false);
+  const [currentBuilder, setCurrentBuilder] = useState<MergeBuilder | ConcatBuilder | EncodeBuilder | null>(null);
 
-  useEffect(() => {
-    const subscription = TruvideoSdkCamera.addListener("cameraEvent", (event) => {
-      console.log("Camera Event:", event.cameraEvent);
-    });
+  // useEffect(() => {
+  //   const subscription = TruvideoSdkCamera.addListener("cameraEvent", (event) => {
+  //     console.log("Camera Event:", event.cameraEvent);
+  //   });
 
-    return () => {
-      subscription?.remove?.();
-    };
-  }, [uploadedVideos]);
+  //   return () => {
+  //     subscription?.remove?.();
+  //   };
+  // }, [uploadedVideos]);
 
   useEffect(() => {
     const savedVideos = JSON.parse(sessionStorage.getItem('uploadedVideos') || '[]');
     setUploadedVideos(savedVideos);
   }, []);
+
 
 
 
@@ -36,43 +37,43 @@ function VideoComponent() {
     );
   };
 
-  const defaultConfig = {
-    height: '640',
-    width: '480',
-    framesRate: 'twentyFourFps',
-    videoCodec: 'h264',
-  };
 
   const safeFirstSelected = selectedVideos[0];
 
   const apiHandlers = {
     async mergeVideos() {
-      if (!safeFirstSelected) return;
+      if (!safeFirstSelected) {
+        console.warn("No videos selected for merging.");
+        return;
+      }
+
       try {
-        const resultPathResponse = await TruvideoSdkVideo.getResultPath({ path: `${Date.now()}-thumbnail` });
-        const payload = {
-          resultPath: resultPathResponse.resultPath,
-          videoUris: JSON.stringify(selectedVideos),
-          config: JSON.stringify(defaultConfig),
-        };
-        const { result } = await TruvideoSdkVideo.mergeVideos(payload);
-        console.log("Merge Video Response:", result);
-        toast.success('Merge successful!');
+        const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail.mp4`);
+        const builder = new MergeBuilder(JSON.stringify(selectedVideos), resultPathResponse.result)
+          .setHeight(720)
+          .setWidth(1280)
+          .setFrameRate(FrameRate.thirtyFps);
+
+        await builder.build();
+
+        setCurrentBuilder(builder);
+        setIsBuildComplete(true);
+        toast.success('Merge Build successful!');
       } catch (error) {
-        console.error("❌ Failed to Merge Videos:", error);
+        console.error("Failed to merge videos:", error);
         toast.error('Merge Failed!');
       } finally {
         setSelectedVideos([]);
       }
     },
 
+
     async compareVideos() {
       if (!safeFirstSelected) return;
-      const payload = {
-        videoUris: JSON.stringify(selectedVideos),
-      };
+      const videoPath = JSON.stringify(selectedVideos)
+        ;
       try {
-        const { result } = await TruvideoSdkVideo.compareVideos(payload);
+        const { result } = await compareVideos(videoPath);
         console.log("Comparison result:", result);
         toast.success('Compare successful!');
       } catch (error) {
@@ -87,18 +88,27 @@ function VideoComponent() {
       if (!safeFirstSelected) return;
 
       try {
-        const resultPathResponse = await TruvideoSdkVideo.getResultPath({ path: `${Date.now()}-thumbnail` });
-        const payload = {
-          resultPath: resultPathResponse.resultPath,
-          videoPath: safeFirstSelected,
-          config: JSON.stringify(defaultConfig),
-          position: 1000,
-          width: 640,
-          height: 480,
-          precise: false,
-        };
-        const { result } = await TruvideoSdkVideo.generateThumbnail(payload);
-        console.log("Thumbnail Generation Result:", result);
+        const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail`);
+
+        const {
+          result
+        } = resultPathResponse;
+
+        const videoPath = safeFirstSelected;
+        const position = 1000;
+        const width = 640;
+        const height = 480;
+        const precise = false;
+
+        const { result: thumbnailPath } = await generateThumbnail(
+          videoPath,
+          result,
+          position,
+          width,
+          height,
+          precise
+        );
+        console.log("Thumbnail Generation Result:", thumbnailPath);
         toast.success('Thumbnail Generation successful!');
       } catch (error) {
         console.error("❌ Failed to Generate Thumbnail:", error);
@@ -110,18 +120,26 @@ function VideoComponent() {
 
     async encodeVideo() {
       if (!safeFirstSelected) return;
-      const resultPathResponse = await TruvideoSdkVideo.getResultPath({ path: `${Date.now()}-thumbnail` });
+
       try {
-        const payload = {
-          resultPath: resultPathResponse.resultPath,
-          videoUri: JSON.stringify(safeFirstSelected),
-          config: JSON.stringify(defaultConfig),
-        };
-        const { result } = await TruvideoSdkVideo.encodeVideo(payload);
-        console.log("Encode Result:", result);
-        toast.success('Encode successful!');
+        const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail.mp4`);
+
+        const builder = new EncodeBuilder(
+          JSON.stringify(safeFirstSelected),
+          resultPathResponse.result
+        )
+          .setHeight(720)
+          .setWidth(1280)
+          .setFrameRate(FrameRate.thirtyFps);
+
+        await builder.build();
+
+        setCurrentBuilder(builder);
+        setIsBuildComplete(true);
+
+        toast.success('Encode Build successful!');
       } catch (error) {
-        console.error("❌ Failed to Encode Video:", error);
+        console.error('Failed to Encode Video:', error);
         toast.error('Encode Failed!');
       } finally {
         setSelectedVideos([]);
@@ -132,12 +150,12 @@ function VideoComponent() {
       if (!safeFirstSelected) return;
 
       try {
-        const resultPathResponse = await TruvideoSdkVideo.getResultPath({ path: `${Date.now()}-thumbnail` });
-        const payload = {
-          resultPath: resultPathResponse.resultPath,
-          videoPath: safeFirstSelected,
-        };
-        const { result } = await TruvideoSdkVideo.cleanNoise(payload);
+        const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail`);
+        // const payload = {
+        //   resultPath: resultPathResponse.resultPath,
+        //   videoPath: safeFirstSelected,
+        // };
+        const { result } = await cleanNoise(safeFirstSelected, resultPathResponse.result);
         console.log("Clean Noise Result:", result);
         toast.success('Clean Noise successful!');
       } catch (error) {
@@ -152,15 +170,10 @@ function VideoComponent() {
       if (!safeFirstSelected) return;
 
       try {
-        const resultPathResponse = await TruvideoSdkVideo.getResultPath({ path: `${Date.now()}-thumbnail` });
-        const payload = {
-          resultPath: resultPathResponse.resultPath,
-          videoPath: safeFirstSelected,
-          config: JSON.stringify(defaultConfig),
-        };
-        const { result } = await TruvideoSdkVideo.editVideo(payload);
+        const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail`);
+        const { result } = await editVideo(safeFirstSelected, resultPathResponse.result);
         console.log("Edit Video Response:", result);
-        toast.success('Edit successful!');
+        if (result) toast.success('Edit successful!');
       } catch (error) {
         console.error("❌ Failed to Edit Video:", error);
         toast.error('Edit Failed!');
@@ -169,18 +182,25 @@ function VideoComponent() {
       }
     },
 
+
     async concatVideos() {
-      if (!safeFirstSelected) return;
+      if (!safeFirstSelected || selectedVideos.length === 0) return;
 
       try {
-        const resultPathResponse = await TruvideoSdkVideo.getResultPath({ path: `${Date.now()}-thumbnail` });
-        const payload = {
-          resultPath: resultPathResponse.resultPath,
-          videoUris: JSON.stringify(selectedVideos),
-        };
-        const { result } = await TruvideoSdkVideo.concatVideos(payload);
-        console.log("Concat Video Response:", result);
-        toast.success('Concat successful!');
+        const resultPathResponse = await getResultPath(`${Date.now()}-concat`);
+
+        const builder = new ConcatBuilder(
+          JSON.stringify(selectedVideos),
+          resultPathResponse.result
+        );
+
+        await builder.build();
+        console.log("Success Builder Function");
+
+        setCurrentBuilder(builder);
+        setIsBuildComplete(true);
+
+        toast.success('Concat Build successful!');
       } catch (error) {
         console.error("❌ Failed to Concat Videos:", error);
         toast.error('Concat Failed!');
@@ -192,8 +212,8 @@ function VideoComponent() {
     async getVideoInfo() {
       if (!safeFirstSelected) return;
       try {
-        const payload = { videoPath: JSON.stringify(safeFirstSelected) };
-        const { result } = await TruvideoSdkVideo.getVideoInfo(payload);
+        const payload = JSON.stringify(safeFirstSelected);
+        const { result } = await getVideoInfo(payload);
         toast.success('Get Video Info successfully!');
         console.log("Get Video Info Response:", result);
       } catch (error) {
@@ -204,6 +224,36 @@ function VideoComponent() {
       }
     },
   };
+
+  const handleProcess = async () => {
+    if (!currentBuilder) return;
+    try {
+      const processed = await currentBuilder.process();
+      console.log("✅ Processed:", processed);
+      setCurrentBuilder(null);
+      setIsBuildComplete(false);
+
+      toast.success("Process successful!");
+    } catch (e) {
+      setCurrentBuilder(null);
+      setIsBuildComplete(false);
+      console.error("❌ Process failed", e);
+      toast.error("Process failed");
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!currentBuilder) return;
+    try {
+      const cancelled = await currentBuilder.cancel();
+      console.log("⛔ Cancelled:", cancelled);
+      toast.info("Cancelled!");
+    } catch (e) {
+      console.error("❌ Cancel failed", e);
+      toast.error("Cancel failed");
+    }
+  };
+
 
   return (
     <div style={{
@@ -289,6 +339,17 @@ function VideoComponent() {
                 action: apiHandlers.getVideoInfo,
                 enabled: singleSelected,
               },
+              {
+                label: 'Process Video',
+                action: handleProcess,
+                enabled: isBuildComplete,
+              },
+              {
+                label: 'Cancel Video',
+                action: handleCancel,
+                enabled: isBuildComplete,
+              },
+
             ].map((btn, idx) => (
               <button
                 key={idx}

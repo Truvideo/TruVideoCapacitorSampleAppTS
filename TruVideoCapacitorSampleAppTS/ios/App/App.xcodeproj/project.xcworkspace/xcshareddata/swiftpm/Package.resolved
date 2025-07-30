@@ -1,0 +1,60 @@
+{
+  "originHash" : "64abcd44419393a5906bcd56cd53ae04ad2fad14258bc30929b749bfe3851e79",
+  "pins" : [
+    {
+      "identity" : "aws-sdk-ios-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/aws-amplify/aws-sdk-ios-spm",
+      "state" : {
+        "revision" : "ca31418963a90bac80538e13f6b7af87ea14d279",
+        "version" : "2.33.4"
+      }
+    },
+    {
+      "identity" : "truvideo-sdk-ios-camera",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Truvideo/truvideo-sdk-ios-camera.git",
+      "state" : {
+        "revision" : "5f6bddae98126f224932517ab3faaa4eec221f2d",
+        "version" : "76.7.6"
+      }
+    },
+    {
+      "identity" : "truvideo-sdk-ios-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Truvideo/truvideo-sdk-ios-core.git",
+      "state" : {
+        "revision" : "1b311d46e8b91def5c7ee250c1c4deab9e958603",
+        "version" : "76.2.1"
+      }
+    },
+    {
+      "identity" : "truvideo-sdk-ios-image",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Truvideo/truvideo-sdk-ios-image.git",
+      "state" : {
+        "revision" : "0a0494a741fe09f02c4d44f8cd6b63b07d8811be",
+        "version" : "76.3.2"
+      }
+    },
+    {
+      "identity" : "truvideo-sdk-ios-media",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Truvideo/truvideo-sdk-ios-media.git",
+      "state" : {
+        "revision" : "5f0595e377b450115faebad124003bc308d770d1",
+        "version" : "76.4.5"
+      }
+    },
+    {
+      "identity" : "truvideo-sdk-ios-video",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Truvideo/truvideo-sdk-ios-video.git",
+      "state" : {
+        "revision" : "6336e67db08e69aa6a20ceb33e438c1afefa3458",
+        "version" : "76.4.2"
+      }
+    }
+  ],
+  "version" : 3
+}
