@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { TruvideoSdkImage } from 'truvideo-capacitor-image-sdk'
-import { getResultPath } from 'truvideo-capacitor-video-sdk';
+import { TruvideoSdkImage } from '@trunpm/truvideo-capacitor-image-sdk'
+import { getResultPath } from '@trunpm/truvideo-capacitor-video-sdk';
 import { toast } from 'react-toastify';
 
 function ImageComponent() {
@@ -29,7 +29,7 @@ function ImageComponent() {
     if (!selectedImages[0]) return;
 
     try {
-      const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail.png`);
+      const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail`);
 
       const payload = {
         inputPath: selectedImages[0],

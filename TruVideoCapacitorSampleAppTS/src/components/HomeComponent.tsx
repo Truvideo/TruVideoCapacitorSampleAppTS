@@ -1,15 +1,14 @@
 import './../css/App.css';
 import './../css/home.css';
 
-import { LensFacing, FlashMode, Orientation, CameraMode, initCameraScreen, type CameraConfiguration } from 'truvideo-capacitor-camera-sdk';
-import { TruVideoSdkCore } from 'truvideo-capacitor-core-sdk';
-import { MediaBuilder, type UploadCompleteEventData, type UploadErrorEvent, type UploadProgressEvent } from 'truvideo-capacitor-media-sdk';
+import { LensFacing, FlashMode, Orientation, CameraMode, initCameraScreen,ImageFormat, type CameraConfiguration } from '@trunpm/truvideo-capacitor-camera-sdk';
+// import { LensFacing, FlashMode, Orientation, CameraMode, initCameraScreen,ImageFormat, type CameraConfiguration, type CameraResult, CameraMediaType, type Resolution } from 'truvideo-capacitor-camera-sdk';
+import { TruVideoSdkCore } from '@trunpm/truvideo-capacitor-core-sdk';
+import {  MediaBuilder, type UploadCompleteEventData, type UploadErrorEvent, type UploadProgressEvent } from '@trunpm/truvideo-capacitor-media-sdk';
 import { useHistory } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
-
-
-type MediaItem = {
+ type MediaItem = {
   cameraLensFacing: string;
   createdAt: number;
   duration: number;
@@ -23,6 +22,12 @@ type MediaItem = {
   type: 'VIDEO' | 'PICTURE' | 'IMAGE';
 };
 
+
+//     "truvideo-capacitor-camera-sdk": "github:Truvideo/TruVideoCapacitorCameraSdk#version-78",
+//     "truvideo-capacitor-core-sdk": "github:Truvideo/TruVideoCapacitorCoreSdk#version-78",
+//     "truvideo-capacitor-image-sdk": "github:Truvideo/TruVideoCapacitorImageSdk#version-78",
+//     "truvideo-capacitor-media-sdk": "github:Truvideo/TruVideoCapacitorMediaSDK#version-78",
+//     "truvideo-capacitor-video-sdk": "github:Truvideo/TruVideoCapacitorVideoSdk#version-78"
 
 function HomeComponent() {
 
@@ -53,12 +58,16 @@ function HomeComponent() {
 
       const isAuth = await TruVideoSdkCore.isAuthenticated();
       const isAuthExpired = await TruVideoSdkCore.isAuthenticationExpired();
+      console.log("isAuth:", isAuth.isAuthenticated);
+      console.log("isAuthExpired:", isAuthExpired.isAuthenticationExpired);
+
+      // Generate payload and signature
 
       const payload = await TruVideoSdkCore.generatePayload();
       const pay = String(payload.generatePayload);
 
-      const apiKey = "";
-      const secretKey = "";
+      const apiKey = "EPhPPsbv7e";
+      const secretKey = "9lHCnkfeLl";
 
       const signature = await TruVideoSdkCore.toSha256String({
         secretKey: secretKey,
@@ -88,17 +97,39 @@ function HomeComponent() {
   }
 
   // Camera options
+  // const resolution : Resolution = { 
+  //   width: 1920,
+  //   height: 1080
+  // }
+  // const resolution2 : Resolution = { 
+  //   width: 1280,
+  //   height: 720
+  // }
 
-  const secretKey: CameraConfiguration = {
-    lensFacing: LensFacing?.Front || "front",
-    flashMode: FlashMode?.Off || "off",
-    orientation: Orientation?.Portrait || "portrait",
+  // const secretKey: CameraConfiguration = {
+  //   lensFacing: LensFacing?.Front || "front",
+  //   flashMode: FlashMode?.Off || "off",
+  //   orientation: Orientation?.Portrait || "portrait",
+  //   outputPath: "",
+  //   frontResolutions: [resolution,resolution2],
+  //   frontResolution: resolution,
+  //   backResolutions: [resolution,resolution2],
+  //   backResolution: resolution,
+  //   mode: CameraMode.videoAndImage(),
+  //   imageFormat: ImageFormat.JPEG, 
+  // };
+
+   const secretKey: CameraConfiguration = {
+    lensFacing: LensFacing?.Back,
+    flashMode: FlashMode?.Off,
+    orientation: Orientation?.Portrait,
     outputPath: "",
     frontResolutions: null,
     frontResolution: null,
     backResolutions: null,
     backResolution: null,
-    mode: CameraMode.videoAndImage()
+    mode: CameraMode.videoAndImage(),
+    imageFormat : ImageFormat.JPEG,
   };
 
   async function openCamera() {
@@ -107,9 +138,23 @@ function HomeComponent() {
 
       const response = await initCameraScreen(secretKey);
       const resultData = response.value;
+      console.log("[openCamera] Camera response:", response.value);
 
       let mediaItems: any[] = [];
 
+      // let mediaItems: CameraResult[] = response.value;
+      // for (const item of mediaItems) {
+      //   console.log("[openCamera] Media id:", item.id);
+      //   console.log("[openCamera] Media filePath:", item.filePath);
+      //   console.log("[openCamera] Media type:", item.type);
+      //   console.log("[openCamera] Media duration:", item.duration);
+      //   console.log("[openCamera] Media createdAt:", item.createdAt);
+      //   console.log("[openCamera] Media rotation:", item.orientation);
+      //   console.log("[openCamera] Media resolution:", item.resolution);
+      //   console.log("[openCamera] Media cameraLensFacing:", item.lensFacing);  
+      // }
+
+     
       if (typeof resultData === "string") {
         try {
           const parsed = JSON.parse(resultData);
@@ -134,6 +179,7 @@ function HomeComponent() {
 
 
   const uploadMediaItems = async (mediaItems: MediaItem[]) => {
+  // const uploadMediaItems = async (mediaItems: CameraResult[]) => {
     console.log("[uploadMediaItems] Start | mediaItems:", mediaItems);
 
     const videoUrls: string[] = [];
@@ -142,7 +188,6 @@ function HomeComponent() {
     for (const item of mediaItems) {
       try {
         console.log(`[uploadMediaItems] Processing item:`, item);
-
         const result = new MediaBuilder(item.filePath);
         console.log(`[uploadMediaItems] Initialized MediaBuilder for ${item.filePath}`);
 
@@ -158,7 +203,8 @@ function HomeComponent() {
 
         // Build request
         const request = await result.build();
-        console.log("[uploadMediaItems] Built upload request");
+        console.log(`[uploadMediaItems] Built upload request ${request}}`);
+        
 
         // Upload
         const uploadCallbacks = {
@@ -166,26 +212,36 @@ function HomeComponent() {
             console.log(`[uploadMediaItems] Upload Progress | ID: ${event.id}, Progress: ${event.progress}%`);
           },
           onComplete: (event: UploadCompleteEventData) => {
-            console.log(`[uploadMediaItems] Upload Complete | ID: ${event.id}, Type: ${event.fileType}`);
+            console.log(`[uploadMediaItems] Upload Complete | ID: ${event.id}, Type: ${event.fileType}, URL: ${event.createdDate}
+              , RemoteID: ${event.remoteId}, UploadedFileURL: ${event.uploadedFileURL}, TranscriptionURL: ${event.transcriptionURL}, 
+              TranscriptionLength: ${event.transcriptionLength} MetaData: ${JSON.stringify(event.metaData)}, Tags: ${JSON.stringify(event.tags)}  `);
           },
           onError: (event: UploadErrorEvent) => {
             console.error(`[uploadMediaItems] Upload Error | ID: ${event.id}, Error: ${event.error}`);
           },
         };
 
-        await request.upload(uploadCallbacks);
-        console.log(`[uploadMediaItems] Upload finished for: ${item.filePath}`);
+        const res = await result.upload(uploadCallbacks);
+        console.log(`[uploadMediaItems] Upload finished for: ${res}`);
 
         // Categorize
         const url = item.filePath;
         const type = item.type;
-        if (url) {
+          if (url) {
           if (type === "VIDEO") {
             videoUrls.push(url);
           } else if (type === "PICTURE" || type === "IMAGE") {
             imageUrls.push(url);
           }
         }
+
+        // if (url) {
+        //   if (type === CameraMediaType.video) {
+        //     videoUrls.push(url);
+        //   } else if (type === CameraMediaType.image) {
+        //     imageUrls.push(url);
+        //   }
+        // }
 
       } catch (error) {
         console.error("[uploadMediaItems] Caught upload error:", error, "for item:", item);
@@ -226,6 +282,10 @@ function HomeComponent() {
       });
     }
   }
+   const clearAuth = () => {
+    TruVideoSdkCore.clearAuthentication();
+    setAuthenticationValue("Authentication Cleared");
+  }
 
 
   return (
@@ -250,6 +310,9 @@ function HomeComponent() {
       </div>
       <div className="button-wrapper">
         <button className="button" onClick={handleVideoClick}>🎥 Video</button>
+      </div>
+      <div className="button-wrapper">
+        <button className="button" onClick={clearAuth}>Clear Auth</button>
       </div>
 
     </div>

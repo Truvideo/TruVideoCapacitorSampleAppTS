@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import './../css/App.css';
-import { cleanNoise, compareVideos, ConcatBuilder, editVideo, EncodeBuilder, FrameRate, generateThumbnail, getResultPath, getVideoInfo, MergeBuilder } from 'truvideo-capacitor-video-sdk';
+import { cleanNoise, compareVideos, ConcatBuilder, editVideo, EncodeBuilder, FrameRate, generateThumbnail, getResultPath, getVideoInfo, MergeBuilder, type BuilderResponse } from '@trunpm/truvideo-capacitor-video-sdk';
 
 function VideoComponent() {
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
@@ -55,6 +55,8 @@ function VideoComponent() {
           .setFrameRate(FrameRate.thirtyFps);
 
         await builder.build();
+        const response : BuilderResponse = await builder.process();
+        console.log("Success Builder Function", JSON.stringify(response));  
 
         setCurrentBuilder(builder);
         setIsBuildComplete(true);
@@ -73,8 +75,10 @@ function VideoComponent() {
       const videoPath = JSON.stringify(selectedVideos)
         ;
       try {
-        const { result } = await compareVideos(videoPath);
-        console.log("Comparison result:", result);
+        const result = await compareVideos(videoPath);
+        
+        console.log(`Comparison result: ${result}`);
+        console.log("Comparison result: ", result);
         toast.success('Compare successful!');
       } catch (error) {
         console.error("❌ Failed to Compare Videos:", error);
@@ -133,6 +137,8 @@ function VideoComponent() {
           .setFrameRate(FrameRate.thirtyFps);
 
         await builder.build();
+        const response : BuilderResponse = await builder.process();
+        console.log("Success Builder Function", JSON.stringify(response));
 
         setCurrentBuilder(builder);
         setIsBuildComplete(true);
@@ -196,6 +202,8 @@ function VideoComponent() {
 
         await builder.build();
         console.log("Success Builder Function");
+        const response : BuilderResponse = await builder.process();
+        console.log("Success Builder Function", JSON.stringify(response));
 
         setCurrentBuilder(builder);
         setIsBuildComplete(true);
@@ -213,9 +221,10 @@ function VideoComponent() {
       if (!safeFirstSelected) return;
       try {
         const payload = JSON.stringify(safeFirstSelected);
-        const { result } = await getVideoInfo(payload);
+        const result  = await getVideoInfo(payload);
         toast.success('Get Video Info successfully!');
-        console.log("Get Video Info Response:", result);
+        console.log("Get Video Info Response:", JSON.stringify(result));
+        //console.log("Get Video Info Response:", result.format);
       } catch (error) {
         console.error("❌ Failed to Get Video Info:", error);
         toast.error('Failed to get Video Info!');

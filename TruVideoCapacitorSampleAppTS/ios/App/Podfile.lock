@@ -7,45 +7,45 @@ PODS:
   - AWSCore (2.41.0)
   - AWSS3 (2.41.0):
     - AWSCore (= 2.41.0)
-  - Capacitor (7.2.0):
+  - Capacitor (7.4.3):
     - CapacitorCordova
   - CapacitorApp (7.0.1):
     - Capacitor
-  - CapacitorCordova (7.2.0)
+  - CapacitorCordova (7.4.3)
   - CapacitorHaptics (7.0.1):
     - Capacitor
   - CapacitorKeyboard (7.0.1):
     - Capacitor
   - CapacitorStatusBar (7.0.1):
     - Capacitor
-  - truvideo-sdk-camera (76.7.3)
-  - truvideo-sdk-core (76.2.1):
-    - AWSCognitoIdentityProvider
-    - AWSCognitoIdentityProviderASF
-    - AWSCore
-    - AWSS3
-  - truvideo-sdk-image (76.4.3)
-  - truvideo-sdk-media (76.4.5):
-    - AWSCognitoIdentityProvider
-    - AWSCognitoIdentityProviderASF
-    - AWSCore
-    - AWSS3
-  - truvideo-sdk-video (76.4.2)
-  - TruvideoCapacitorCameraSdk (0.0.1):
+  - TrunpmTruvideoCapacitorCameraSdk (0.0.3):
     - Capacitor
     - truvideo-sdk-camera
-  - TruvideoCapacitorCoreSdk (0.0.1):
+  - TrunpmTruvideoCapacitorCoreSdk (0.0.3):
     - Capacitor
     - truvideo-sdk-core
-  - TruvideoCapacitorImageSdk (0.0.1):
+  - TrunpmTruvideoCapacitorImageSdk (0.0.3):
     - Capacitor
     - truvideo-sdk-image
-  - TruvideoCapacitorMediaSdk (0.0.1):
+  - TrunpmTruvideoCapacitorMediaSdk (0.0.3):
     - Capacitor
     - truvideo-sdk-media
-  - TruvideoCapacitorVideoSdk (0.0.1):
+  - TrunpmTruvideoCapacitorVideoSdk (0.0.3):
     - Capacitor
     - truvideo-sdk-video
+  - truvideo-sdk-camera (78.1.1)
+  - truvideo-sdk-core (78.1.1):
+    - AWSCognitoIdentityProvider
+    - AWSCognitoIdentityProviderASF
+    - AWSCore
+    - AWSS3
+  - truvideo-sdk-image (78.1.2)
+  - truvideo-sdk-media (78.1.2):
+    - AWSCognitoIdentityProvider
+    - AWSCognitoIdentityProviderASF
+    - AWSCore
+    - AWSS3
+  - truvideo-sdk-video (78.1.1)
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
@@ -54,11 +54,11 @@ DEPENDENCIES:
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
-  - TruvideoCapacitorCameraSdk (from `../../node_modules/truvideo-capacitor-camera-sdk`)
-  - TruvideoCapacitorCoreSdk (from `../../node_modules/truvideo-capacitor-core-sdk`)
-  - TruvideoCapacitorImageSdk (from `../../node_modules/truvideo-capacitor-image-sdk`)
-  - TruvideoCapacitorMediaSdk (from `../../node_modules/truvideo-capacitor-media-sdk`)
-  - TruvideoCapacitorVideoSdk (from `../../node_modules/truvideo-capacitor-video-sdk`)
+  - "TrunpmTruvideoCapacitorCameraSdk (from `../../node_modules/@trunpm/truvideo-capacitor-camera-sdk`)"
+  - "TrunpmTruvideoCapacitorCoreSdk (from `../../node_modules/@trunpm/truvideo-capacitor-core-sdk`)"
+  - "TrunpmTruvideoCapacitorImageSdk (from `../../node_modules/@trunpm/truvideo-capacitor-image-sdk`)"
+  - "TrunpmTruvideoCapacitorMediaSdk (from `../../node_modules/@trunpm/truvideo-capacitor-media-sdk`)"
+  - "TrunpmTruvideoCapacitorVideoSdk (from `../../node_modules/@trunpm/truvideo-capacitor-video-sdk`)"
 
 SPEC REPOS:
   trunk:
@@ -85,39 +85,39 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/keyboard"
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
-  TruvideoCapacitorCameraSdk:
-    :path: "../../node_modules/truvideo-capacitor-camera-sdk"
-  TruvideoCapacitorCoreSdk:
-    :path: "../../node_modules/truvideo-capacitor-core-sdk"
-  TruvideoCapacitorImageSdk:
-    :path: "../../node_modules/truvideo-capacitor-image-sdk"
-  TruvideoCapacitorMediaSdk:
-    :path: "../../node_modules/truvideo-capacitor-media-sdk"
-  TruvideoCapacitorVideoSdk:
-    :path: "../../node_modules/truvideo-capacitor-video-sdk"
+  TrunpmTruvideoCapacitorCameraSdk:
+    :path: "../../node_modules/@trunpm/truvideo-capacitor-camera-sdk"
+  TrunpmTruvideoCapacitorCoreSdk:
+    :path: "../../node_modules/@trunpm/truvideo-capacitor-core-sdk"
+  TrunpmTruvideoCapacitorImageSdk:
+    :path: "../../node_modules/@trunpm/truvideo-capacitor-image-sdk"
+  TrunpmTruvideoCapacitorMediaSdk:
+    :path: "../../node_modules/@trunpm/truvideo-capacitor-media-sdk"
+  TrunpmTruvideoCapacitorVideoSdk:
+    :path: "../../node_modules/@trunpm/truvideo-capacitor-video-sdk"
 
 SPEC CHECKSUMS:
   AWSCognitoIdentityProvider: b7e2471bec75137ce392b9a8c60f3cee465c61bd
   AWSCognitoIdentityProviderASF: d26fedd80485c2f0f308741e02c4a9093921ad22
   AWSCore: ee7594bda3132cde8666328bf9a09d8770c1c100
   AWSS3: 50da7408a26c1c2886d02968807f2a0b6bf936ca
-  Capacitor: 106e7a4205f4618d582b886a975657c61179138d
+  Capacitor: b4741ca7affb32c1b70debd03df92cbf522d8a80
   CapacitorApp: d63334c052278caf5d81585d80b21905c6f93f39
-  CapacitorCordova: 5967b9ba03915ef1d585469d6e31f31dc49be96f
+  CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
   CapacitorHaptics: 70e47470fa1a6bd6338cd102552e3846b7f9a1b3
   CapacitorKeyboard: 969647d0ca2e5c737d7300088e2517aa832434e2
   CapacitorStatusBar: 275cbf2f4dfc00388f519ef80c7ec22edda342c9
-  truvideo-sdk-camera: b476100da32d6642b7cbcacac8d16452198dfff9
-  truvideo-sdk-core: 738693a5f32e0a193524c3eaf9e9764118d2df3f
-  truvideo-sdk-image: 9f113b0fb0ec327f236dcd83d85b5a4b09e0ff88
-  truvideo-sdk-media: 543bcc519ea40cf835c611ad5767484cc65597c7
-  truvideo-sdk-video: 8c400ea178cdd2b2f4807e62ca4547100eeafec3
-  TruvideoCapacitorCameraSdk: 632204c00241290fcb068f0509b4011323328629
-  TruvideoCapacitorCoreSdk: f1a17e8adf031e4fdb2cdc016c75165288fbf1a5
-  TruvideoCapacitorImageSdk: 3e010b03984ae6e872e8a61926f27987907b4bc5
-  TruvideoCapacitorMediaSdk: afe87beacbe61f0fb4d2072e18015ab2df1a0e78
-  TruvideoCapacitorVideoSdk: 50e12a3f135c2a40e52a4618eeacbc0993d368aa
+  TrunpmTruvideoCapacitorCameraSdk: b39e3cdef8a895d2a9e4c55a35abff91e34714db
+  TrunpmTruvideoCapacitorCoreSdk: 0caf34384696324f8c2a48aa7e5657a0744ca265
+  TrunpmTruvideoCapacitorImageSdk: d139695d2dfe844795dbf196eabc0fa2e287ea11
+  TrunpmTruvideoCapacitorMediaSdk: 0d06f0fe0f933239980450a1547c83df1b5287ab
+  TrunpmTruvideoCapacitorVideoSdk: 2fe76caa100eeb2af821070323310a4b5f9f8ff1
+  truvideo-sdk-camera: c1c764bf117e160b475bb541433fa94ca9b0d379
+  truvideo-sdk-core: 7f82939ec90dbb7d5a11b059e21a0167051965fc
+  truvideo-sdk-image: 7297b9863d594dd4ea3c7dd1b7629335c5ff5593
+  truvideo-sdk-media: 792e9c4436e43af45e09fd392038a19aaa04f7a1
+  truvideo-sdk-video: cf774e10c4f90ef5fad7fb35d1b9aee89b6f18bd
 
-PODFILE CHECKSUM: cc4d03b0aaf8900564979342ccccba6b93f626ba
+PODFILE CHECKSUM: 5561de8bbe6986de9d8797132f169a82b49abaf3
 
 COCOAPODS: 1.16.2
