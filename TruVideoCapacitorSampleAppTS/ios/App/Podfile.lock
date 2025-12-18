@@ -7,33 +7,37 @@ PODS:
   - AWSCore (2.41.0)
   - AWSS3 (2.41.0):
     - AWSCore (= 2.41.0)
-  - Capacitor (7.4.3):
+  - Capacitor (7.4.4):
     - CapacitorCordova
   - CapacitorApp (7.0.1):
     - Capacitor
-  - CapacitorCordova (7.4.3)
+  - CapacitorCordova (7.4.4)
+  - CapacitorFilesystem (7.1.5):
+    - Capacitor
+    - IONFilesystemLib (~> 1.0.1)
   - CapacitorHaptics (7.0.1):
     - Capacitor
   - CapacitorKeyboard (7.0.1):
     - Capacitor
   - CapacitorStatusBar (7.0.1):
     - Capacitor
-  - TrunpmTruvideoCapacitorCameraSdk (0.0.3):
+  - IONFilesystemLib (1.0.1)
+  - TrunpmTruvideoCapacitorCameraSdk (0.0.5):
     - Capacitor
-    - truvideo-sdk-camera
-  - TrunpmTruvideoCapacitorCoreSdk (0.0.3):
+    - truvideo-sdk-camera (= 78.1.2)
+  - TrunpmTruvideoCapacitorCoreSdk (0.0.5):
     - Capacitor
-    - truvideo-sdk-core
-  - TrunpmTruvideoCapacitorImageSdk (0.0.3):
+    - truvideo-sdk-core (= 78.1.1)
+  - TrunpmTruvideoCapacitorImageSdk (0.0.5):
     - Capacitor
-    - truvideo-sdk-image
-  - TrunpmTruvideoCapacitorMediaSdk (0.0.3):
+    - truvideo-sdk-image (= 78.1.2)
+  - TrunpmTruvideoCapacitorMediaSdk (0.0.5):
     - Capacitor
-    - truvideo-sdk-media
-  - TrunpmTruvideoCapacitorVideoSdk (0.0.3):
+    - truvideo-sdk-media (= 78.1.2)
+  - TrunpmTruvideoCapacitorVideoSdk (0.0.5):
     - Capacitor
-    - truvideo-sdk-video
-  - truvideo-sdk-camera (78.1.1)
+    - truvideo-sdk-video (= 78.1.1)
+  - truvideo-sdk-camera (78.1.2)
   - truvideo-sdk-core (78.1.1):
     - AWSCognitoIdentityProvider
     - AWSCognitoIdentityProviderASF
@@ -51,6 +55,7 @@ DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
@@ -66,6 +71,7 @@ SPEC REPOS:
     - AWSCognitoIdentityProviderASF
     - AWSCore
     - AWSS3
+    - IONFilesystemLib
     - truvideo-sdk-camera
     - truvideo-sdk-core
     - truvideo-sdk-image
@@ -79,6 +85,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/app"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
+  CapacitorFilesystem:
+    :path: "../../node_modules/@capacitor/filesystem"
   CapacitorHaptics:
     :path: "../../node_modules/@capacitor/haptics"
   CapacitorKeyboard:
@@ -101,23 +109,25 @@ SPEC CHECKSUMS:
   AWSCognitoIdentityProviderASF: d26fedd80485c2f0f308741e02c4a9093921ad22
   AWSCore: ee7594bda3132cde8666328bf9a09d8770c1c100
   AWSS3: 50da7408a26c1c2886d02968807f2a0b6bf936ca
-  Capacitor: b4741ca7affb32c1b70debd03df92cbf522d8a80
+  Capacitor: 09d9ff8e9618e8c4b3cab2bbee34a17215dd2fef
   CapacitorApp: d63334c052278caf5d81585d80b21905c6f93f39
-  CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
+  CapacitorCordova: bf648a636f3c153f652d312ae145fb508b6ffced
+  CapacitorFilesystem: 2caf7ad6e26d68defef0631b0f09adb09a353f27
   CapacitorHaptics: 70e47470fa1a6bd6338cd102552e3846b7f9a1b3
   CapacitorKeyboard: 969647d0ca2e5c737d7300088e2517aa832434e2
   CapacitorStatusBar: 275cbf2f4dfc00388f519ef80c7ec22edda342c9
-  TrunpmTruvideoCapacitorCameraSdk: b39e3cdef8a895d2a9e4c55a35abff91e34714db
-  TrunpmTruvideoCapacitorCoreSdk: 0caf34384696324f8c2a48aa7e5657a0744ca265
-  TrunpmTruvideoCapacitorImageSdk: d139695d2dfe844795dbf196eabc0fa2e287ea11
-  TrunpmTruvideoCapacitorMediaSdk: 0d06f0fe0f933239980450a1547c83df1b5287ab
-  TrunpmTruvideoCapacitorVideoSdk: 2fe76caa100eeb2af821070323310a4b5f9f8ff1
-  truvideo-sdk-camera: c1c764bf117e160b475bb541433fa94ca9b0d379
+  IONFilesystemLib: 89258b8e3e85465da93127d25d7ce37f977e8a6f
+  TrunpmTruvideoCapacitorCameraSdk: 9b6cb475de459d9d7ab631d421dedcaaf2a3f53e
+  TrunpmTruvideoCapacitorCoreSdk: 1d3a80a5208b974b4f72633fd5cfecf1e40d2f88
+  TrunpmTruvideoCapacitorImageSdk: 9717c3a8e7234f8595c6ac9b38836bdb39b8faf3
+  TrunpmTruvideoCapacitorMediaSdk: 3380234c0e4961650a90b59a8d851235355b7c5a
+  TrunpmTruvideoCapacitorVideoSdk: 8741a55eedc54c15546d5d07b551d2d2e9dcb20a
+  truvideo-sdk-camera: e758c7116bfca46677200bad157ecf0920eb64ec
   truvideo-sdk-core: 7f82939ec90dbb7d5a11b059e21a0167051965fc
   truvideo-sdk-image: 7297b9863d594dd4ea3c7dd1b7629335c5ff5593
   truvideo-sdk-media: 792e9c4436e43af45e09fd392038a19aaa04f7a1
   truvideo-sdk-video: cf774e10c4f90ef5fad7fb35d1b9aee89b6f18bd
 
-PODFILE CHECKSUM: 5561de8bbe6986de9d8797132f169a82b49abaf3
+PODFILE CHECKSUM: b34a1f9b0f29a324fd7708af8f7417e0ca64e8aa
 
 COCOAPODS: 1.16.2

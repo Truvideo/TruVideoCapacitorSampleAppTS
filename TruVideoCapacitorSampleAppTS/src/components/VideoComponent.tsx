@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import './../css/App.css';
-import { cleanNoise, compareVideos, ConcatBuilder, editVideo, EncodeBuilder, FrameRate, generateThumbnail, getResultPath, getVideoInfo, MergeBuilder, type BuilderResponse } from '@trunpm/truvideo-capacitor-video-sdk';
+import { cleanNoise, compareVideos, ConcatBuilder, editVideo, EncodeBuilder, FrameRate, generateThumbnail, getResultPath, getVideoInfo, MergeBuilder } from '@trunpm/truvideo-capacitor-video-sdk';
 
 function VideoComponent() {
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
@@ -55,8 +55,11 @@ function VideoComponent() {
           .setFrameRate(FrameRate.thirtyFps);
 
         await builder.build();
-        const response : BuilderResponse = await builder.process();
+        const response  = await builder.process();
+
+        const cancel  = await builder.cancel();
         console.log("Success Builder Function", JSON.stringify(response));  
+        console.log("Cancel Builder Function", JSON.stringify(cancel));  
 
         setCurrentBuilder(builder);
         setIsBuildComplete(true);
@@ -72,12 +75,9 @@ function VideoComponent() {
 
     async compareVideos() {
       if (!safeFirstSelected) return;
-      const videoPath = JSON.stringify(selectedVideos)
-        ;
+      const videoPath = JSON.stringify(selectedVideos);
       try {
         const result = await compareVideos(videoPath);
-        
-        console.log(`Comparison result: ${result}`);
         console.log("Comparison result: ", result);
         toast.success('Compare successful!');
       } catch (error) {
@@ -99,9 +99,9 @@ function VideoComponent() {
         } = resultPathResponse;
 
         const videoPath = safeFirstSelected;
-        const position = 1000;
-        const width = 640;
-        const height = 480;
+        const position = 1;
+        const width = 269;
+        const height = 208;
         const precise = false;
 
         const { result: thumbnailPath } = await generateThumbnail(
@@ -137,7 +137,7 @@ function VideoComponent() {
           .setFrameRate(FrameRate.thirtyFps);
 
         await builder.build();
-        const response : BuilderResponse = await builder.process();
+        const response = await builder.process();
         console.log("Success Builder Function", JSON.stringify(response));
 
         setCurrentBuilder(builder);
@@ -157,10 +157,6 @@ function VideoComponent() {
 
       try {
         const resultPathResponse = await getResultPath(`${Date.now()}-thumbnail`);
-        // const payload = {
-        //   resultPath: resultPathResponse.resultPath,
-        //   videoPath: safeFirstSelected,
-        // };
         const { result } = await cleanNoise(safeFirstSelected, resultPathResponse.result);
         console.log("Clean Noise Result:", result);
         toast.success('Clean Noise successful!');
@@ -202,7 +198,7 @@ function VideoComponent() {
 
         await builder.build();
         console.log("Success Builder Function");
-        const response : BuilderResponse = await builder.process();
+        const response = await builder.process();
         console.log("Success Builder Function", JSON.stringify(response));
 
         setCurrentBuilder(builder);
@@ -224,7 +220,6 @@ function VideoComponent() {
         const result  = await getVideoInfo(payload);
         toast.success('Get Video Info successfully!');
         console.log("Get Video Info Response:", JSON.stringify(result));
-        //console.log("Get Video Info Response:", result.format);
       } catch (error) {
         console.error("❌ Failed to Get Video Info:", error);
         toast.error('Failed to get Video Info!');
@@ -269,14 +264,18 @@ function VideoComponent() {
       ...styles.container,
       backgroundColor: '#ffffff',
       color: '#000000',
-      minHeight: '100vh',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      overflowY: 'auto',
+      marginBottom: 70,
     }}>
       <div style={{ marginBottom: 30 }} />
 
       {/* Back Button */}
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
         <button
-          onClick={() => window.history.back()}
+          onClick={() => globalThis.history.back()}
           style={{
             padding: '8px 16px',
             backgroundColor: '#3490CA',
@@ -295,12 +294,30 @@ function VideoComponent() {
       {uploadedVideos.length > 0 ? (
         <>
           {uploadedVideos.map((url, index) => (
-            <div key={index} style={styles.item}>
+            // <div key={index} style={styles.item}>
+            //   <input
+            //     type="checkbox"
+            //     checked={selectedVideos.includes(url)}
+            //     onChange={() => handleCheckboxChange(url)}
+            //     style={styles.checkbox as any}
+            //   />
+            //   <span style={styles.text as any}>{url.split('/').pop()}</span>
+            // </div>,
+
+            <div
+              key={index}
+              style={{
+                ...styles.item,
+                cursor: 'pointer', // shows clickable cursor
+                backgroundColor: selectedVideos.includes(url) ? '#e0f0ff' : '#f9f9f9', // optional: highlight selection
+              }}
+              onClick={() => handleCheckboxChange(url)} // entire div clickable
+            >
               <input
                 type="checkbox"
                 checked={selectedVideos.includes(url)}
-                onChange={() => handleCheckboxChange(url)}
-                style={styles.checkbox as any}
+                //onClick={(e) => e.stopPropagation()} // prevent double trigger
+                style={styles.checkbox}
               />
               <span style={styles.text as any}>{url.split('/').pop()}</span>
             </div>

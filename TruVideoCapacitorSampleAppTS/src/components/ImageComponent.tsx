@@ -35,7 +35,7 @@ function ImageComponent() {
         inputPath: selectedImages[0],
         outputPath: resultPathResponse.result
       };
-
+      console.log("Edited Image Response:", JSON.stringify(payload, null, 2));
       const { result } = await TruvideoSdkImage.editImage(payload);
       console.log("Edited Image Response:", result);
       if (result) toast.success("Process successful!");
@@ -54,14 +54,16 @@ function ImageComponent() {
     );
   };
   return (
-    <div style={{
-      ...styles.container,
-      backgroundColor: '#ffffff',
-      color: '#000000',
-      minHeight: '100vh',
-    }}>
-      <div style={{ marginBottom: 30 }} />
-
+    <div 
+      style={{
+        ...styles.container,
+        backgroundColor: '#ffffff',
+        color: '#000000',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       {/* Back Button */}
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
         <button
@@ -79,41 +81,57 @@ function ImageComponent() {
           ← Back
         </button>
       </div>
-      <div style={{ marginBottom: 30 }} />
 
-      {uploadedImages.length > 0 ? (
-        <>
-          {uploadedImages.map((url, index) => (
-            <div key={index} style={styles.item}>
+      {/* Scrollable List */}
+      <div style={{ flex: 1, overflowY: 'auto', marginBottom: 70 }}>
+        {uploadedImages.length > 0 ? (
+          uploadedImages.map((url, index) => (
+            <div
+              key={index}
+              style={{
+                ...styles.item,
+                cursor: 'pointer', // shows clickable cursor
+                backgroundColor: selectedImages.includes(url) ? '#e0f0ff' : '#f9f9f9', // optional: highlight selection
+              }}
+              onClick={() => handleCheckboxChange(url)} // entire div clickable
+            >
               <input
                 type="checkbox"
                 checked={selectedImages.includes(url)}
-                onChange={() => handleCheckboxChange(url)}
+                //onClick={(e) => e.stopPropagation()} // prevent double trigger
                 style={styles.checkbox}
               />
-              {/* <span style={styles.text}>{url}</span> */}
               <span style={styles.text}>{url.split('/').pop()}</span>
-
             </div>
-          ))}
+          ))
+        ) : (
+          <p style={styles.emptyText}>No images available.</p>
+        )}
+      </div>
 
-          <div style={styles.buttonContainer}>
-            <button
-              disabled={selectedImages.length === 0}
-              style={{
-                ...styles.button,
-                backgroundColor: selectedImages.length === 0 ? '#ccc' : '#3490CA' as const,
-                cursor: selectedImages.length === 0 ? 'not-allowed' : 'pointer' as const,
-              } as any}
-              onClick={editImage}
-            >
-              Edit Image
-            </button>
-          </div>
-        </>
-      ) : (
-        <p style={styles.emptyText}>No videos available.</p>
-      )}
+      {/* Fixed Bottom Button */}
+      <div style={styles.fixedButtonContainer}>
+        <button
+          disabled={selectedImages.length === 0}
+          style={{
+            width: '90%',
+            backgroundColor: selectedImages.length === 0 ? '#ccc' : '#3490CA',
+            cursor: selectedImages.length === 0 ? 'not-allowed' : 'pointer',
+            padding: '12px',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            fontSize: 16,
+            minWidth: 120,
+            textAlign: 'center' as const, // ✅ Fix for textAlign type
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            transition: 'background-color 0.3s ease',
+          }}
+          onClick={editImage}
+        >
+          Edit Image
+        </button>
+      </div>
     </div>
   );
 };
@@ -164,6 +182,15 @@ const styles = {
     textAlign: 'center' as const,
     color: '#888',
     fontSize: 16,
+  },
+  fixedButtonContainer: {
+    position: 'fixed' as const,
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    backgroundColor: '#fff',
+    padding: 16,
+    boxShadow: '0 -2px 6px rgba(0,0,0,0.1)',
   },
 };
 export default ImageComponent

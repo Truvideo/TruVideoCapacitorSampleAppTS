@@ -7,6 +7,8 @@ import MediaComponent from './components/MediaComponent';
 import ImageComponent from './components/ImageComponent';
 
 import { ToastContainer } from 'react-toastify';
+import VideoDownload from './components/VideoDownload';
+import VideoRequestScreen from './components/VideoRequestScreen';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route exact path="/media" component={MediaComponent} />
         <Route exact path="/image" component={ImageComponent} />
         <Route exact path="/video" component={VideoComponent} />
+        <Route exact path="/videoDownload" component={VideoDownload} />
+        <Route exact path="/videoRequest" component={VideoRequestScreen} />
       </IonRouterOutlet>
       <ToastContainer />
     </>

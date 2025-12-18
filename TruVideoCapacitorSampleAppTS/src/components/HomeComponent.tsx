@@ -1,14 +1,27 @@
 import './../css/App.css';
 import './../css/home.css';
 
-import { LensFacing, FlashMode, Orientation, CameraMode, initCameraScreen,ImageFormat, type CameraConfiguration } from '@trunpm/truvideo-capacitor-camera-sdk';
+//import { Capacitor } from '@capacitor/core';
+import { LensFacing, FlashMode, Orientation,
+  type ARCameraConfiguration,
+  initARCameraScreenTS,
+  CameraMode, initCameraScreen, type CameraConfiguration, ImageFormat, 
+  initScanerScreen
+} from '@trunpm/truvideo-capacitor-camera-sdk';
 // import { LensFacing, FlashMode, Orientation, CameraMode, initCameraScreen,ImageFormat, type CameraConfiguration, type CameraResult, CameraMediaType, type Resolution } from 'truvideo-capacitor-camera-sdk';
 import { TruVideoSdkCore } from '@trunpm/truvideo-capacitor-core-sdk';
-import {  MediaBuilder, type UploadCompleteEventData, type UploadErrorEvent, type UploadProgressEvent } from '@trunpm/truvideo-capacitor-media-sdk';
+import { MediaBuilder,
+  //type UploadCompleteEventData, 
+  //type UploadErrorEvent,
+  //type UploadProgressEvent 
+  } from '@trunpm/truvideo-capacitor-media-sdk';
 import { useHistory } from 'react-router-dom';
+import { Filesystem, Directory, 
+    //Encoding
+ } from '@capacitor/filesystem';
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react';
- type MediaItem = {
+type MediaItem = {
   cameraLensFacing: string;
   createdAt: number;
   duration: number;
@@ -38,19 +51,104 @@ function HomeComponent() {
   const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
 
   const history = useHistory();
+  var firstRun = false;
+  // const reynoldsApiKey = "4dQjPQZe4A";
+  // const reynoldsSecretKey = "yjnugBX7UC";
+  // const reynoldsExternalId = "reynolds";
 
-
+  const fiveExApiKey = "EPhPPsbv7e";
+  const fiveExSecretKey = "9lHCnkfeLl";
+  const fiveExExternalId = "";
 
   // Authenticate user and restore previously uploaded media
   useEffect(() => {
     auth();
+    listMediaFiles();
     const savedImages = JSON.parse(sessionStorage.getItem('uploadedImages') || '[]');
     const savedVideos = JSON.parse(sessionStorage.getItem('uploadedVideos') || '[]');
-
-
     setUploadedImages(savedImages);
     setUploadedVideos(savedVideos);
   }, []);
+
+
+
+
+  async function listMediaFiles() {
+    if (firstRun) { 
+      return;
+    }
+    firstRun = true;
+      
+      const allFiles = await listAllFilesRecursive('');
+      // const absolutePaths = allFiles.map(f => {
+      //   // f.uri → "https://localhost/_capacitor_file_/data/user/0/..."
+      //   // convert it back to the real file path
+      //   return f.uri?.replace('https://localhost/_capacitor_file_', '') || '';
+      // });
+
+      // const imageFiles = allFiles.filter(f =>
+      //   /\.[^.]+?\.(jpg|jpeg|png|gif|webp)$/i.test(f)
+      // );
+
+      // const videoFiles = allFiles.filter(f =>
+      //   /\.[^.]+?\.(mp4|mov|avi|mkv)$/i.test(f)
+      // );
+
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+      const videoExtensions = ['mp4', 'mov', 'avi', 'mkv'];
+
+      const imageFiles = allFiles.filter(f => {
+        const ext = f.split('.').pop()?.toLowerCase() || '';
+        return imageExtensions.includes(ext);
+      });
+
+      const videoFiles = allFiles.filter(f => {
+        const ext = f.split('.').pop()?.toLowerCase() || '';
+        return videoExtensions.includes(ext);
+      });
+
+
+      console.log('Images:', imageFiles);
+      console.log('Videos:', videoFiles);
+
+      const previousImages = JSON.parse(sessionStorage.getItem('uploadedImages') || '[]');
+      const updatedImages = Array.from(
+        new Set([...previousImages, ...imageFiles]) 
+      );
+      setUploadedImages(updatedImages);
+      sessionStorage.setItem('uploadedImages', JSON.stringify(updatedImages));
+      // Save videos
+      const previousVideos = JSON.parse(sessionStorage.getItem('uploadedVideos') || '[]');
+      const updatedVideos = Array.from(
+        new Set([...previousVideos, ...videoFiles])
+      );
+      setUploadedVideos(updatedVideos);
+      sessionStorage.setItem('uploadedVideos', JSON.stringify(updatedVideos));
+    }
+
+    async function listAllFilesRecursive(path = '') {
+      const result = await Filesystem.readdir({
+        path,
+        directory: Directory.Data,
+      });
+
+      let files: string[] = [];
+
+      for (const f of result.files) {
+        if (f.type === 'directory') {
+          // Recursively read subfolder
+          const subFiles = await listAllFilesRecursive(`${path}/${f.name}`);
+          files = files.concat(subFiles);
+        } else {
+          // Convert capacitor URI → absolute path
+          const fullPath =
+            f.uri?.replace('https://localhost/_capacitor_file_', '').replace('file://','') ||`/data/user/0/com.truvideo.sampleapp/files/${path}/${f.name}`;
+          files.push(fullPath);
+        }
+      }
+
+      return files;
+    }
 
   async function auth() {
     try {
@@ -66,15 +164,15 @@ function HomeComponent() {
       const payload = await TruVideoSdkCore.generatePayload();
       const pay = String(payload.generatePayload);
 
-      const apiKey = "EPhPPsbv7e";
-      const secretKey = "9lHCnkfeLl";
+      const apiKey = fiveExApiKey;
+      const secretKey = fiveExSecretKey;
 
       const signature = await TruVideoSdkCore.toSha256String({
         secretKey: secretKey,
         payload: pay
       });
 
-      const externalId = "";
+      const externalId = fiveExExternalId;
 
       // Authenticate only if not already authenticated or session expired
       if (!isAuth.isAuthenticated || isAuthExpired.isAuthenticationExpired) {
@@ -96,15 +194,6 @@ function HomeComponent() {
     }
   }
 
-  // Camera options
-  // const resolution : Resolution = { 
-  //   width: 1920,
-  //   height: 1080
-  // }
-  // const resolution2 : Resolution = { 
-  //   width: 1280,
-  //   height: 720
-  // }
 
   // const secretKey: CameraConfiguration = {
   //   lensFacing: LensFacing?.Front || "front",
@@ -124,9 +213,9 @@ function HomeComponent() {
     flashMode: FlashMode?.Off,
     orientation: Orientation?.Portrait,
     outputPath: "",
-    frontResolutions: null,
+    frontResolutions: [],
     frontResolution: null,
-    backResolutions: null,
+    backResolutions: [],
     backResolution: null,
     mode: CameraMode.videoAndImage(),
     imageFormat : ImageFormat.JPEG,
@@ -151,10 +240,9 @@ function HomeComponent() {
       //   console.log("[openCamera] Media createdAt:", item.createdAt);
       //   console.log("[openCamera] Media rotation:", item.orientation);
       //   console.log("[openCamera] Media resolution:", item.resolution);
-      //   console.log("[openCamera] Media cameraLensFacing:", item.lensFacing);  
+      //   console.log("[openCamera] Media cameraLensFacing:", item.lensFacing);
       // }
 
-     
       if (typeof resultData === "string") {
         try {
           const parsed = JSON.parse(resultData);
@@ -170,8 +258,10 @@ function HomeComponent() {
         return;
       }
 
+      
+
       await uploadMediaItems(mediaItems);
-      toast.success("Upload successful!");
+      toast.success("Capture successful!");
     } catch (error) {
       console.error("[openCamera] Caught error:", error);
     }
@@ -184,6 +274,17 @@ function HomeComponent() {
 
     const videoUrls: string[] = [];
     const imageUrls: string[] = [];
+    for (const item of mediaItems) { 
+        const url = item.filePath;
+        const type = item.type;
+          if (url) {
+          if (type === "VIDEO") {
+            videoUrls.push(url);
+          } else if (type === "PICTURE" || type === "IMAGE") {
+            imageUrls.push(url);
+          }
+        }
+    }
 
     for (const item of mediaItems) {
       try {
@@ -196,10 +297,13 @@ function HomeComponent() {
         result.setTag("color", "red");
         result.setTag("orderNumber", "123");
 
+        result.setIsLibrary(true);
         // Set metadata
         result.setMetaData("key", "value");
         result.setMetaData("key1", "1");
         result.setMetaData("key2", "[4,5,6]");
+        
+      
 
         // Build request
         const request = await result.build();
@@ -207,33 +311,28 @@ function HomeComponent() {
         
 
         // Upload
-        const uploadCallbacks = {
-          onProgress: (event: UploadProgressEvent) => {
-            console.log(`[uploadMediaItems] Upload Progress | ID: ${event.id}, Progress: ${event.progress}%`);
-          },
-          onComplete: (event: UploadCompleteEventData) => {
-            console.log(`[uploadMediaItems] Upload Complete | ID: ${event.id}, Type: ${event.fileType}, URL: ${event.createdDate}
-              , RemoteID: ${event.remoteId}, UploadedFileURL: ${event.uploadedFileURL}, TranscriptionURL: ${event.transcriptionURL}, 
-              TranscriptionLength: ${event.transcriptionLength} MetaData: ${JSON.stringify(event.metaData)}, Tags: ${JSON.stringify(event.tags)}  `);
-          },
-          onError: (event: UploadErrorEvent) => {
-            console.error(`[uploadMediaItems] Upload Error | ID: ${event.id}, Error: ${event.error}`);
-          },
-        };
+        // const uploadCallbacks = {
+        //   onProgress: (event: UploadProgressEvent) => {
+        //     console.log(`[uploadMediaItems] Upload Progress | ID: ${event.id}, Progress: ${event.progress}%`);
+        //   },
+        //   onComplete: (event: UploadCompleteEventData) => {
+        //     console.log(`[uploadMediaItems] Upload Complete | ID: ${event.id}, Type: ${event.fileType}, Date: ${event.createdDate}
+        //       , RemoteID: ${event.remoteId}, UploadedFileURL: ${event.uploadedFileURL}, TranscriptionURL: ${event.transcriptionURL}, 
+        //       TranscriptionLength: ${event.transcriptionLength} MetaData: ${JSON.stringify(event.metaData)}, Tags: ${JSON.stringify(event.tags)}  
+        //       Status: ${request.mediaDetail?.status}`);
+        //   },
+        //   onError: (event: UploadErrorEvent) => {
+        //     console.error(`[uploadMediaItems] Upload Error | ID: ${event.id}, Error: ${event.error}`);
+        //   }
+        // };
 
-        const res = await result.upload(uploadCallbacks);
-        console.log(`[uploadMediaItems] Upload finished for: ${res}`);
+        
+        
+        //const res = await result.upload(uploadCallbacks);
+        //console.log(`[uploadMediaItems] Upload finished for: ${res}`);
 
         // Categorize
-        const url = item.filePath;
-        const type = item.type;
-          if (url) {
-          if (type === "VIDEO") {
-            videoUrls.push(url);
-          } else if (type === "PICTURE" || type === "IMAGE") {
-            imageUrls.push(url);
-          }
-        }
+        
 
         // if (url) {
         //   if (type === CameraMediaType.video) {
@@ -250,20 +349,117 @@ function HomeComponent() {
 
     console.log("[uploadMediaItems] Upload loop finished. Saving to session storage...");
 
+    // if(Capacitor.getPlatform() === 'ios') {
+    //   // iOS specific code
+    //   const videoNewUrls: string[] = [];
+    //   const imageNewUrls: string[] = [];
+    //   // ✅ 1. Normalize for Capacitor
+
+    //   for (var path of imageUrls) {
+    //     try{
+    //       console.log("Processing image path:", path);
+    //       if (path.startsWith('file://')) {
+    //         path = path.replace('file://', '');
+    //       }
+    //       // if (path.startsWith('/private')) {
+    //       //   path = path.replace('/private', '');
+    //       // }
+    //       await Filesystem.stat({ path: path, directory : Directory.Cache});
+    //       const fileName = path.split('/').pop() || "";
+    //       console.log("Processing image path:", path);
+    //         await Filesystem.copy({
+    //             from: path,
+    //             to: `output/${fileName}`,
+    //             directory : Directory.Cache, 
+    //             toDirectory : Directory.Documents,
+    //           });
+    //       const result = await Filesystem.getUri({
+    //         path: `output/${fileName}`,
+    //         directory: Directory.Documents,
+    //       });
+    //       const filePath = result.uri.replace('file://', '');
+    //       imageNewUrls.push(filePath);
+    //     }
+    //     catch(e){
+    //       console.error("File does not exist:", path, e);
+    //       continue;
+    //     }
+    //   }
+    //   for (var path of videoUrls) {
+    //     try{
+    //       if (path.startsWith('file://')) {
+    //         path = path.replace('file://', '');
+    //       }
+    //       if (path.startsWith('/private')) {
+    //         path = path.replace('/private', '');
+    //       }
+    //       await Filesystem.stat({ path: path });
+    //       const fileName = path.split('/').pop() || "";
+    //         await Filesystem.copy({
+    //             from: path,
+    //             to: `output/${fileName}`,
+    //             directory: Directory.Documents,
+    //           });
+    //       const result = await Filesystem.getUri({
+    //         path: `output/${fileName}`,
+    //         directory: Directory.Documents,
+    //       });
+    //       const filePath = result.uri.replace('file://', '');
+    //       videoNewUrls.push(filePath);
+    //     }
+    //     catch(e){
+    //       console.error("File does not exist:", path, e);
+    //       continue;
+    //     }
+    //   }
+
+    //   // Save images
+    //   const previousImages = JSON.parse(sessionStorage.getItem('uploadedImages') || '[]');
+    //   const updatedImages = [...previousImages, ...imageNewUrls];
+    //   setUploadedImages(updatedImages);
+    //   sessionStorage.setItem('uploadedImages', JSON.stringify(updatedImages));
+
+    //   // Save videos
+    //   const previousVideos = JSON.parse(sessionStorage.getItem('uploadedVideos') || '[]');
+    //   const updatedVideos = [...previousVideos, ...videoNewUrls];
+    //   setUploadedVideos(updatedVideos);
+    //   sessionStorage.setItem('uploadedVideos', JSON.stringify(updatedVideos));
+
+    //   console.log("[uploadMediaItems] Final updatedVideos:", updatedVideos);
+    //   console.log("[uploadMediaItems] Final updatedImages:", updatedImages);
+      
+    // }else {
+    //   // Save images
+    //   const previousImages = JSON.parse(sessionStorage.getItem('uploadedImages') || '[]');
+    //   const updatedImages = [...previousImages, ...imageUrls];
+    //   setUploadedImages(updatedImages);
+    //   sessionStorage.setItem('uploadedImages', JSON.stringify(updatedImages));
+
+    //   // Save videos
+    //   const previousVideos = JSON.parse(sessionStorage.getItem('uploadedVideos') || '[]');
+    //   const updatedVideos = [...previousVideos, ...videoUrls];
+    //   setUploadedVideos(updatedVideos);
+    //   sessionStorage.setItem('uploadedVideos', JSON.stringify(updatedVideos));
+
+    //   console.log("[uploadMediaItems] Final updatedVideos:", updatedVideos);
+    //   console.log("[uploadMediaItems] Final updatedImages:", updatedImages);
+    // }
+
     // Save images
-    const previousImages = JSON.parse(sessionStorage.getItem('uploadedImages') || '[]');
-    const updatedImages = [...previousImages, ...imageUrls];
-    setUploadedImages(updatedImages);
-    sessionStorage.setItem('uploadedImages', JSON.stringify(updatedImages));
+      const previousImages = JSON.parse(sessionStorage.getItem('uploadedImages') || '[]');
+      const updatedImages = [...previousImages, ...imageUrls];
+      setUploadedImages(updatedImages);
+      sessionStorage.setItem('uploadedImages', JSON.stringify(updatedImages));
 
-    // Save videos
-    const previousVideos = JSON.parse(sessionStorage.getItem('uploadedVideos') || '[]');
-    const updatedVideos = [...previousVideos, ...videoUrls];
-    setUploadedVideos(updatedVideos);
-    sessionStorage.setItem('uploadedVideos', JSON.stringify(updatedVideos));
+      // Save videos
+      const previousVideos = JSON.parse(sessionStorage.getItem('uploadedVideos') || '[]');
+      const updatedVideos = [...previousVideos, ...videoUrls];
+      setUploadedVideos(updatedVideos);
+      sessionStorage.setItem('uploadedVideos', JSON.stringify(updatedVideos));
 
-    console.log("[uploadMediaItems] Final updatedVideos:", updatedVideos);
-    console.log("[uploadMediaItems] Final updatedImages:", updatedImages);
+      console.log("[uploadMediaItems] Final updatedVideos:", updatedVideos);
+      console.log("[uploadMediaItems] Final updatedImages:", updatedImages);
+
   };
 
 
@@ -286,6 +482,45 @@ function HomeComponent() {
     TruVideoSdkCore.clearAuthentication();
     setAuthenticationValue("Authentication Cleared");
   }
+  const handleVideoDownLoadClick = () => {
+    if (uploadedImages.length > 0) {
+      history.push('/videoDownload', {
+        uploadedVideos: uploadedImages
+      });
+    }
+  }
+  const handleVideoRequestClick = () => {
+    if (uploadedImages.length > 0) {
+      history.push('/videoRequest', {
+        uploadedVideos: uploadedImages
+      });
+    }
+  }
+
+  const handleAr = async () => {
+    const config : ARCameraConfiguration = {
+      outputPath: "",
+      mode: CameraMode.videoAndImage(),
+      orientation: Orientation.Portrait,
+    }
+    const result = await initARCameraScreenTS(config);
+    //const result = await initScanerScreen();
+    console.log("Scanner Result:", result);
+  }
+
+  const handleScanner = async () => {
+    // const config : ARCameraConfiguration = {
+    //   outputPath: "",
+    //   mode: CameraMode.videoAndImage(),
+    //   orientation: Orientation.Portrait,
+    // }
+    // const result = await initARCameraScreenTS(config);
+    const result = await initScanerScreen();
+    console.log("Scanner Result:", result);
+  }
+
+  
+  
 
 
   return (
@@ -312,7 +547,21 @@ function HomeComponent() {
         <button className="button" onClick={handleVideoClick}>🎥 Video</button>
       </div>
       <div className="button-wrapper">
+        <button className="button" onClick={handleVideoDownLoadClick}>🎥 Video Download Test</button>
+      </div>
+      <div className="button-wrapper">
+        <button className="button" onClick={handleVideoRequestClick}>🎥 Video Request Test</button>
+      </div>
+      <div className="button-wrapper">
         <button className="button" onClick={clearAuth}>Clear Auth</button>
+      </div>
+
+      <div className="button-wrapper">
+        <button className="button" onClick={handleScanner}>Scanner</button>
+      </div>
+
+      <div className="button-wrapper">
+        <button className="button" onClick={handleAr}>Open Ar Screen</button>
       </div>
 
     </div>
